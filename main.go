@@ -19,13 +19,13 @@ func main() {
 	// Limiter Abal abalan
 	app.Use(limiter.New(
 		limiter.Config{
-			Max:        10,
+			Max:        1,
 			Expiration: 1 * time.Second,
 		},
 	))
 
 	app.Use(middleware.Logger())
-	app.Use(middleware.ApiKey())
+	// app.Use(middleware.ApiKey())
 
 	db.InitDatabase()
 

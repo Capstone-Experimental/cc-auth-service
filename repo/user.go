@@ -1,7 +1,9 @@
 package repo
 
 import (
+	"cc-auth-service/helper"
 	"cc-auth-service/model"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -23,6 +25,7 @@ func (ur *UserRepo) GetAll() ([]model.User, error) {
 	// hiden password
 	for i := range users {
 		users[i].Password = ""
+		users[i].OTP = ""
 	}
 
 	if result.Error != nil {
@@ -31,13 +34,17 @@ func (ur *UserRepo) GetAll() ([]model.User, error) {
 	return users, nil
 }
 
-func (ur *UserRepo) GetByID(id string) (model.User, error) {
+func (ur *UserRepo) GetByID(id string) (*model.User, error) {
 	var user model.User
-	result := ur.Db.First(&user, id)
+	result := ur.Db.Where("id = ?", id).First(&user)
 	if result.Error != nil {
-		return model.User{}, result.Error
+		return nil, result.Error
 	}
-	return user, nil
+
+	user.OTP = ""
+	user.Password = ""
+
+	return &user, nil
 }
 
 func (ur *UserRepo) GetByEmail(email string) (model.User, error) {
@@ -56,11 +63,32 @@ func (ur *UserRepo) Create(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-func (ur *UserRepo) Update(user *model.User) (*model.User, error) {
+func (ur *UserRepo) Update(userID string, updateRequest *model.UpdateUserRequest) (*model.User, error) {
+	var user model.User
+	result := ur.Db.Where("id = ?", userID).First(&user)
+	if result.Error != nil {
+		return &model.User{}, result.Error
+	}
+
+	if updateRequest.Name != nil {
+		user.Name = *updateRequest.Name
+	}
+	if updateRequest.Email != nil {
+		user.Email = *updateRequest.Email
+	}
+	if updateRequest.Password != nil {
+		hash, err := helper.GeneratePassword(*updateRequest.Password)
+		if err != nil {
+			return nil, err
+		}
+		user.Password = hash
+	}
+
 	if err := ur.Db.Save(&user).Error; err != nil {
 		return nil, err
 	}
-	return user, nil
+
+	return &user, nil
 }
 
 func (ur *UserRepo) Delete(user *model.User) (*model.User, error) {
@@ -68,4 +96,52 @@ func (ur *UserRepo) Delete(user *model.User) (*model.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (ur *UserRepo) ForgotPassword(email string) error {
+
+	otp, err := helper.SendOTP(email)
+	if err != nil {
+		return err
+	}
+
+	user, err := ur.GetByEmail(email)
+	if err != nil {
+		return err
+	}
+	// save otp to db
+	if err := ur.Db.Model(&user).Update("otp", otp).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ur *UserRepo) CheckOTP(otpInput string) (bool, error) {
+	var user model.User
+	result := ur.Db.Where("otp = ?", otpInput).First(&user)
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return true, nil
+}
+
+func (ur *UserRepo) ResetPasswordAndOTP(email, password string) error {
+	user, err := ur.GetByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	if user.OTP == "" {
+		return errors.New("OTP tidak ada")
+	}
+
+	user.OTP = ""
+
+	result := ur.Db.Model(&user).Updates(map[string]interface{}{"password": password, "otp": ""})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

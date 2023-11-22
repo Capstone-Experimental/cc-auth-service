@@ -10,6 +10,7 @@ type User struct {
 	Name     string `gorm:"size:255;" json:"name"`
 	Email    string `gorm:"unique_index" json:"email"`
 	Password string `json:"password"`
+	OTP      string `json:"otp"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

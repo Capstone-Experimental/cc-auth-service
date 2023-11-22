@@ -29,10 +29,8 @@ func Logger() fiber.Handler {
 			latency,
 		)
 
-		// Cetak log ke konsol atau file log
 		fmt.Println(logMessage)
 
-		// Kembalikan response ke client
 		return nil
 	}
 }
