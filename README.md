@@ -1,6 +1,6 @@
 # Authentication Service
 
-Authentication Service, part of the [knowZe](https://github.com/Capstone-Experimental/cc-knowze-semi-monolith).
+Authentication Service, part of the [knowZe Semi-Monolith](https://github.com/Capstone-Experimental/cc-knowze-semi-monolith).
 
 ## Technology Used
 
