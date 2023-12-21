@@ -21,6 +21,7 @@ func NewUserHandler(repoUser repo.UserRepo) *UserHandler {
 	}
 }
 
+// Register handles POST /register route
 func (uh *UserHandler) Register(c *fiber.Ctx) error {
 
 	var register model.RegisterRequest
@@ -54,6 +55,7 @@ func (uh *UserHandler) Register(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to register", nil)
 }
 
+// Login handles POST /login route
 func (uh *UserHandler) Login(c *fiber.Ctx) error {
 
 	var login model.LoginRequest
@@ -78,6 +80,7 @@ func (uh *UserHandler) Login(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to login", fiber.Map{"token": token})
 }
 
+// GetAllUser handles GET /users route
 func (uh *UserHandler) GetAllUser(c *fiber.Ctx) error {
 	var users []model.User
 
@@ -89,6 +92,7 @@ func (uh *UserHandler) GetAllUser(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to get all user", users)
 }
 
+// GetUserByID handles GET /users/:id route
 func (uh *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -100,6 +104,7 @@ func (uh *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to get user", user)
 }
 
+// UpdateUser handles PUT /users/:id route
 func (uh *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -117,6 +122,7 @@ func (uh *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to update user", user)
 }
 
+// ForgotPassword handles POST /forgot-password route
 func (uh *UserHandler) ForgotPassword(c *fiber.Ctx) error {
 	var forgot model.ForgotPasswordRequest
 
@@ -138,6 +144,7 @@ func (uh *UserHandler) ForgotPassword(c *fiber.Ctx) error {
 
 }
 
+// VerifyOTP handles POST /verify-otp route
 func (uh *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 	var verify model.VerifyOTPRequest
 
@@ -157,6 +164,7 @@ func (uh *UserHandler) VerifyOTP(c *fiber.Ctx) error {
 	return helper.Response(c, 200, "Success to verify OTP", nil)
 }
 
+// ResetPassword handles PUT /reset-password route
 func (uh *UserHandler) ResetPassword(c *fiber.Ctx) error {
 	var reset model.ResetPasswordRequest
 

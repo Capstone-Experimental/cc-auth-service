@@ -16,7 +16,7 @@ func main() {
 
 	app := fiber.New()
 
-	// Limiter Abal abalan
+	// Limiter(?)
 	app.Use(limiter.New(
 		limiter.Config{
 			Max:        1,

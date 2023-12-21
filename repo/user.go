@@ -18,11 +18,12 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 	}
 }
 
+// GetAll returns all users
 func (ur *UserRepo) GetAll() ([]model.User, error) {
 	var users []model.User
 	result := ur.Db.Find(&users)
 
-	// hiden password
+	// hide password
 	for i := range users {
 		users[i].Password = ""
 		users[i].OTP = ""
@@ -34,6 +35,7 @@ func (ur *UserRepo) GetAll() ([]model.User, error) {
 	return users, nil
 }
 
+// GetByID returns a user by id
 func (ur *UserRepo) GetByID(id string) (*model.User, error) {
 	var user model.User
 	result := ur.Db.Where("id = ?", id).First(&user)
@@ -47,6 +49,7 @@ func (ur *UserRepo) GetByID(id string) (*model.User, error) {
 	return &user, nil
 }
 
+// GetByEmail returns a user by email
 func (ur *UserRepo) GetByEmail(email string) (model.User, error) {
 	var user model.User
 	result := ur.Db.Where("email = ?", email).First(&user)
@@ -56,6 +59,7 @@ func (ur *UserRepo) GetByEmail(email string) (model.User, error) {
 	return user, nil
 }
 
+// Create creates a new user
 func (ur *UserRepo) Create(user *model.User) (*model.User, error) {
 	if err := ur.Db.Create(&user).Error; err != nil {
 		return nil, err
@@ -63,6 +67,7 @@ func (ur *UserRepo) Create(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
+// Update updates a user
 func (ur *UserRepo) Update(userID string, updateRequest *model.UpdateUserRequest) (*model.User, error) {
 	var user model.User
 	result := ur.Db.Where("id = ?", userID).First(&user)
@@ -91,6 +96,7 @@ func (ur *UserRepo) Update(userID string, updateRequest *model.UpdateUserRequest
 	return &user, nil
 }
 
+// Delete deletes a user
 func (ur *UserRepo) Delete(user *model.User) (*model.User, error) {
 	if err := ur.Db.Delete(&user).Error; err != nil {
 		return nil, err
@@ -98,6 +104,7 @@ func (ur *UserRepo) Delete(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
+// ForgotPassword in case user forgot password
 func (ur *UserRepo) ForgotPassword(email string) error {
 
 	otp, err := helper.SendOTP(email)
@@ -117,6 +124,7 @@ func (ur *UserRepo) ForgotPassword(email string) error {
 	return nil
 }
 
+// CheckOTP checks if otp is valid
 func (ur *UserRepo) CheckOTP(otpInput string) (bool, error) {
 	var user model.User
 	result := ur.Db.Where("otp = ?", otpInput).First(&user)
@@ -127,6 +135,7 @@ func (ur *UserRepo) CheckOTP(otpInput string) (bool, error) {
 	return true, nil
 }
 
+// ResetPasswordAndOTP resets password and otp
 func (ur *UserRepo) ResetPasswordAndOTP(email, password string) error {
 	user, err := ur.GetByEmail(email)
 	if err != nil {
